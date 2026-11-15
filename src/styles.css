@@ -560,6 +560,23 @@ a:hover {
   }
 }
 
+@media (max-width: 560px) {
+  .top {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 9px 12px;
+    row-gap: 8px;
+  }
+
+  .mark {
+    white-space: nowrap;
+  }
+
+  .seg button {
+    padding: 0 7px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .k,
   .item,

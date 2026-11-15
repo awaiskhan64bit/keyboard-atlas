@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "A keyboard tester. Pick a board, press the keys, hear the real switch and see the layout and specs.",
   "license": "MIT",
+  "homepage": "https://keyboard-atlas-awaisvercel.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/awaiskhan64bit/keyboard-atlas"
