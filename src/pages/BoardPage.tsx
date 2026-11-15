@@ -15,10 +15,22 @@ type Props = {
 };
 
 const MODES: { id: RgbMode; label: string }[] = [
-  { id: 'warm', label: 'Warm Glow' },
-  { id: 'wave', label: 'Breathing' },
+  { id: 'wave', label: 'Type Wave' },
   { id: 'rainbow', label: 'Spectrum' },
+  { id: 'custom', label: 'Custom Color' },
+  { id: 'breathing', label: 'Breathing' },
+  { id: 'reactive', label: 'Reactive Key' },
+  { id: 'warm', label: 'Warm Glow' },
   { id: 'off', label: 'Lighting Off' },
+];
+
+const RGB_PRESETS = [
+  { name: 'Amber Gold', hex: '#ffb703' },
+  { name: 'Retro Red', hex: '#e63946' },
+  { name: 'Emerald Mint', hex: '#06d6a0' },
+  { name: 'Glacier Cyan', hex: '#00b4d8' },
+  { name: 'Sunset Orange', hex: '#fb8500' },
+  { name: 'Warm White', hex: '#fff3db' },
 ];
 
 const CAPTURE = new Set([
@@ -37,10 +49,34 @@ export default function BoardPage({ id, kb: propKb }: Props) {
   const kb = propKb ?? BY_ID.get(id) ?? KEYBOARDS[0];
   const layout = LAYOUTS[kb.layout];
 
-  const [mode, setMode] = useState<RgbMode>('warm');
+  const [mode, setMode] = useState<RgbMode>('wave');
+  const [customColor, setCustomColor] = useState('#ffb703');
+  const [waveOrigin, setWaveOrigin] = useState<{ x: number; y: number; tick: number } | null>(null);
   const [typed, setTyped] = useState(false);
   const [pressed, setPressed] = useState<ReadonlySet<string>>(() => new Set());
   const held = useRef<ReadonlySet<string>>(new Set());
+
+  // Full screen support
+  const stageCardRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      stageCardRef.current?.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
 
   // Search in sidebar rail
   const [query, setQuery] = useState('');
@@ -98,6 +134,15 @@ export default function BoardPage({ id, kb: propKb }: Props) {
     held.current = next;
     setPressed(next);
     setTyped(true);
+
+    const keyObj = layout.keys.find((k) => k.code === code);
+    if (keyObj) {
+      setWaveOrigin({
+        x: keyObj.x + keyObj.w / 2,
+        y: keyObj.y + keyObj.h / 2,
+        tick: Date.now(),
+      });
+    }
   };
 
   const loose = (code: string) => {
@@ -201,7 +246,11 @@ export default function BoardPage({ id, kb: propKb }: Props) {
                   data-active={b.id === kb.id}
                 >
                   <span className="item__name">{b.model}</span>
-                  <span className="item__meta">{LAYOUTS[b.layout].name}</span>
+                  {b.comingSoon ? (
+                    <span className="badge badge--sm badge--slate">Coming Soon</span>
+                  ) : (
+                    <span className="item__meta">{LAYOUTS[b.layout].name}</span>
+                  )}
                 </a>
               ))}
             </div>
@@ -218,6 +267,18 @@ export default function BoardPage({ id, kb: propKb }: Props) {
           </nav>
 
           {/* Top Hardware Showcase Section */}
+          {kb.comingSoon ? (
+            <div className="coming-soon-banner">
+              <span className="badge badge--red">Coming Soon</span>
+              <p>
+                Acoustic recordings and colorway photography for <strong>{kb.brand} {kb.model}</strong> are currently in progress. You can preview the layout below, or test the live sound and colorways on the <strong>Aula Collection</strong>.
+              </p>
+              <a href={links.home + '#aula'} className="btn btn--sm btn--primary">
+                Explore Aula Boards
+              </a>
+            </div>
+          ) : null}
+
           <section className="showcase-hero">
             <div className="showcase-hero__meta">
               <div className="showcase-hero__brand-row">
@@ -304,21 +365,110 @@ export default function BoardPage({ id, kb: propKb }: Props) {
               </div>
 
               {/* Interactive Audio & Typing Deck Card */}
-              <div className="showcase-card showcase-card--interactive">
+              <div
+                ref={stageCardRef}
+                className={`showcase-card showcase-card--interactive ${
+                  isFullscreen ? 'showcase-card--fullscreen' : ''
+                }`}
+              >
                 <div className="showcase-card__header">
-                  <span className="showcase-card__tag">Interactive Typing & Audio Test</span>
-                  <div className="seg" role="group" aria-label="Lighting mode">
-                    {MODES.map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        data-active={mode === m.id}
-                        onClick={() => setMode(m.id)}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
+                  <div className="showcase-card__header-left">
+                    <span className="showcase-card__tag">Interactive Typing & Audio Test</span>
+                    {isFullscreen ? (
+                      <span className="badge badge--red">Full Screen Theater</span>
+                    ) : null}
                   </div>
+
+                  <div className="showcase-card__header-controls">
+                    <button
+                      type="button"
+                      className="btn btn--sm btn--outline fullscreen-toggle-btn"
+                      onClick={toggleFullscreen}
+                      title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
+                    >
+                      {isFullscreen ? (
+                        <>
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                          </svg>
+                          <span>Exit Full Screen</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                          </svg>
+                          <span>Full Screen</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="rgb-control-bar">
+                  <div className="rgb-control-bar__modes">
+                    <span className="rgb-control-bar__label">RGB Backlight:</span>
+                    <div className="seg" role="group" aria-label="Lighting mode">
+                      {MODES.map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          data-active={mode === m.id}
+                          onClick={() => setMode(m.id)}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {mode !== 'off' && mode !== 'warm' && mode !== 'rainbow' ? (
+                    <div className="rgb-color-picker">
+                      <span className="rgb-color-picker__label">Custom Color:</span>
+                      <div className="rgb-color-picker__swatches">
+                        {RGB_PRESETS.map((p) => (
+                          <button
+                            key={p.hex}
+                            type="button"
+                            className={`color-swatch-btn ${customColor === p.hex ? 'color-swatch-btn--active' : ''}`}
+                            onClick={() => setCustomColor(p.hex)}
+                            title={p.name}
+                            style={{ '--swatch-color': p.hex } as React.CSSProperties}
+                          >
+                            <span className="swatch-dot" />
+                            <span className="swatch-name">{p.name}</span>
+                          </button>
+                        ))}
+                        <label className="custom-color-input-wrap" title="Custom Hex Color">
+                          <input
+                            type="color"
+                            value={customColor}
+                            onChange={(e) => setCustomColor(e.target.value)}
+                            className="color-wheel-input"
+                          />
+                          <span className="custom-color-text">Custom</span>
+                        </label>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="showcase-board-wrap">
@@ -326,6 +476,8 @@ export default function BoardPage({ id, kb: propKb }: Props) {
                     kb={kb}
                     layout={layout}
                     mode={mode}
+                    customColor={customColor}
+                    waveOrigin={waveOrigin}
                     pressed={pressed}
                     onPress={hold}
                     onRelease={loose}
@@ -336,7 +488,7 @@ export default function BoardPage({ id, kb: propKb }: Props) {
                 <p className="hint">
                   {typed
                     ? 'Keypress registered with real switch acoustics. Type freely.'
-                    : 'Press any key on your physical keyboard or click the keycaps above'}
+                    : 'Press any key on your physical keyboard or click the keycaps above to trigger reactive lighting'}
                 </p>
               </div>
             </div>

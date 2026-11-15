@@ -4,20 +4,22 @@ import type { Layout } from './data/layouts';
 import type { Keyboard } from './data/keyboards';
 import type { Palette } from './palette';
 
-export type RgbMode = 'warm' | 'wave' | 'rainbow' | 'off';
+export type RgbMode = 'wave' | 'rainbow' | 'breathing' | 'reactive' | 'custom' | 'warm' | 'off';
 
 type Props = {
   kb: Keyboard;
   layout: Layout;
   mode: RgbMode;
+  customColor?: string;
+  waveOrigin?: { x: number; y: number; tick: number } | null;
   pressed: ReadonlySet<string>;
   onPress: (code: string, row: number) => void;
   onRelease: (code: string) => void;
   palette?: Palette;
 };
 
-// Every hue in the lit range skips 240 to 320, so no board ever glows violet.
-const HUES = [8, 22, 38, 52, 96, 148, 186, 214];
+// Safe hues avoiding 240-320 (no purple or violet): warm reds, ambers, golds, limes, emeralds, cyans
+const HUES = [8, 24, 38, 50, 96, 142, 178, 204];
 
 const inkOn = (hex: string) => {
   const n = parseInt(hex.slice(1), 16);
@@ -27,16 +29,25 @@ const inkOn = (hex: string) => {
   return (r * 299 + g * 587 + b * 114) / 1000 > 142 ? '#211f1b' : '#f6f1e6';
 };
 
-export default function Board({ kb, layout, mode, pressed, onPress, onRelease, palette }: Props) {
+export default function Board({
+  kb,
+  layout,
+  mode,
+  customColor = '#ffb703',
+  waveOrigin,
+  pressed,
+  onPress,
+  onRelease,
+  palette,
+}: Props) {
   const host = useRef<HTMLDivElement>(null);
   const [unit, setUnit] = useState(36);
 
-  // Key size comes from the space available, so a full size board shrinks
-  // instead of overflowing. Half a unit of case padding on each side.
+  // Key size scales with available stage width
   useEffect(() => {
     const el = host.current;
     if (!el) return;
-    const fit = () => setUnit(Math.max(9, Math.min(62, el.clientWidth / (layout.cols + 1))));
+    const fit = () => setUnit(Math.max(9, Math.min(64, el.clientWidth / (layout.cols + 1))));
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(el);
@@ -55,7 +66,14 @@ export default function Board({ kb, layout, mode, pressed, onPress, onRelease, p
         className={`deck mode-${mode}`}
         data-lit={lit ? '1' : undefined}
         data-nolight={kb.rgb === 'None' ? '1' : undefined}
-        style={{ '--u': `${unit}px`, '--case': caseColor } as CSSProperties}
+        data-waving={waveOrigin ? '1' : undefined}
+        style={
+          {
+            '--u': `${unit}px`,
+            '--case': caseColor,
+            '--custom-rgb': customColor,
+          } as CSSProperties
+        }
       >
         <div
           className="keys"
@@ -69,9 +87,16 @@ export default function Board({ kb, layout, mode, pressed, onPress, onRelease, p
             const touched = accent && accentKeys.includes(k.code);
             const face = touched ? accent! : k.main.length > 1 ? cap.mod : cap.base;
             const wide = k.w >= 1.5 && k.main.length > 1;
+
+            const centerX = k.x + k.w / 2;
+            const centerY = k.y + k.h / 2;
+            const dist = waveOrigin
+              ? Math.hypot(centerX - waveOrigin.x, (centerY - waveOrigin.y) * 1.35)
+              : 0;
+
             return (
               <div
-                key={k.id}
+                key={k.id + (waveOrigin ? `-${waveOrigin.tick}` : '')}
                 className="k"
                 data-on={pressed.has(k.code) ? '1' : undefined}
                 data-wide={wide ? '1' : undefined}
@@ -83,6 +108,9 @@ export default function Board({ kb, layout, mode, pressed, onPress, onRelease, p
                     '--legend': touched ? inkOn(face) : kb.cap.legend,
                     '--i': i,
                     '--hue': HUES[i % HUES.length],
+                    '--dist': dist.toFixed(2),
+                    '--col': k.x.toFixed(2),
+                    '--row': k.y.toFixed(2),
                   } as CSSProperties
                 }
                 onPointerDown={() => onPress(k.code, k.y)}

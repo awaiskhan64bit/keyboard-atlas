@@ -121,29 +121,7 @@ export const BOARD_PHOTOS: Record<string, string[]> = {
 export const BOARD_COLOURWAYS: Record<string, Colourway[]> = {
   "aula-f75": [
     {
-      "name": "F75 Wireless Mechanical Keyboard - Cedar Green (Light Purple",
-      "family": "green",
-      "swatch": [
-        "#8fae92",
-        "#6f8f74"
-      ],
-      "src": "/photos/aula-f75-alt-1.jpg",
-      "source": "https://eezepc.com/product/aula-f75-wireless-keyboard-cedar-green/"
-    },
-    {
-      "name": "F75 Wireless Mechanical Keyboard - Sea Salt Blue (Light Blue",
-      "family": "white",
-      "swatch": [
-        "#f1eee6",
-        "#dcd8ce"
-      ],
-      "src": "/photos/aula-f75-alt-2.jpg",
-      "source": "https://eezepc.com/product/aula-f75-wireless-keyboard-sea-salt-blue/"
-    }
-  ],
-  "aula-f75-pro": [
-    {
-      "name": "F75 Wireless Mechanical Keyboard - Cedar Green (Light Purple",
+      "name": "F75 Pro Wireless Mechanical Keyboard - Cedar Green (Mint Accent)",
       "family": "green",
       "swatch": [
         "#8fae92",
@@ -153,7 +131,29 @@ export const BOARD_COLOURWAYS: Record<string, Colourway[]> = {
       "source": "https://eezepc.com/product/aula-f75-wireless-keyboard-cedar-green/"
     },
     {
-      "name": "F75 Wireless Mechanical Keyboard - Sea Salt Blue (Light Blue",
+      "name": "F75 Pro Wireless Mechanical Keyboard - Sea Salt Blue",
+      "family": "white",
+      "swatch": [
+        "#f1eee6",
+        "#dcd8ce"
+      ],
+      "src": "/photos/aula-f75-pro-alt-2.jpg",
+      "source": "https://eezepc.com/product/aula-f75-wireless-keyboard-sea-salt-blue/"
+    }
+  ],
+  "aula-f75-pro": [
+    {
+      "name": "F75 Pro Wireless Mechanical Keyboard - Cedar Green (Mint Accent)",
+      "family": "green",
+      "swatch": [
+        "#8fae92",
+        "#6f8f74"
+      ],
+      "src": "/photos/aula-f75-pro-alt-1.jpg",
+      "source": "https://eezepc.com/product/aula-f75-wireless-keyboard-cedar-green/"
+    },
+    {
+      "name": "F75 Pro Wireless Mechanical Keyboard - Sea Salt Blue",
       "family": "white",
       "swatch": [
         "#f1eee6",
@@ -263,7 +263,7 @@ export const BOARD_COLOURWAYS: Record<string, Colourway[]> = {
       "source": "https://eezepc.com/product/razer-huntsman-mini-linear-optical-switch-gaming-keyboard-white/"
     },
     {
-      "name": "Huntsman Mini – Linear Optical Switch Gaming Keyboard – Blac",
+      "name": "Huntsman Mini - Linear Optical Switch Gaming Keyboard - Blac",
       "family": "black",
       "swatch": [
         "#232529",
@@ -273,7 +273,7 @@ export const BOARD_COLOURWAYS: Record<string, Colourway[]> = {
       "source": "https://eezepc.com/product/razer-huntsman-mini-linear-optical-switch-gaming-keyboard-black/"
     },
     {
-      "name": "Huntsman Mini – Clicky Purple Optical Switch Gaming Keyboard",
+      "name": "Huntsman Mini - Clicky Optical Switch Gaming Keyboard (Mercury White)",
       "family": "white",
       "swatch": [
         "#f1eee6",
@@ -283,7 +283,7 @@ export const BOARD_COLOURWAYS: Record<string, Colourway[]> = {
       "source": "https://eezepc.com/product/razer-huntsman-mini-clicky-purple-optical-switch-gaming-keyboard-white/"
     },
     {
-      "name": "Huntsman Mini - Clicky Purple Optical Switch Gaming Keyboard",
+      "name": "Huntsman Mini - Clicky Optical Switch Gaming Keyboard (Classic Black)",
       "family": "black",
       "swatch": [
         "#232529",
@@ -388,15 +388,30 @@ export const SWITCH_PHOTOS: Record<string, string[]> = {
   "starvector": [
     "/photos/switch-starvector.jpg"
   ],
+  "gateronred": [
+    "/photos/switch-gateron-red.jpg"
+  ],
+  "gateronblue": [
+    "/photos/switch-gateron-blue.jpg"
+  ],
+  "gateronbrown": [
+    "/photos/switch-gateron-brown.jpg"
+  ],
+  "gateronblack": [
+    "/photos/switch-gateron-black.jpg"
+  ],
   "linear": [
+    "/photos/switch-gateron-red.jpg",
     "/photos/switch-graywood.jpg",
     "/photos/switch-linear-1.jpg"
   ],
   "clicky": [
+    "/photos/switch-gateron-blue.jpg",
     "/photos/switch-clicky-1.jpg",
     "/photos/switch-clicky-2.jpg"
   ],
   "tactile": [
+    "/photos/switch-gateron-brown.jpg",
     "/photos/switch-tactile-1.jpg",
     "/photos/switch-tactile-2.jpg"
   ],
@@ -481,7 +496,7 @@ export const PHOTO_CREDITS = [
   },
   {
     "board": "razer-huntsman-mini",
-    "title": "Razer Huntsman Mini – Linear Optical Switch Gaming Keyboard – Black",
+    "title": "Razer Huntsman Mini - Linear Optical Switch Gaming Keyboard - Black",
     "source": "https://eezepc.com/product/razer-huntsman-mini-linear-optical-switch-gaming-keyboard-black/",
     "host": "eezepc.com"
   },
@@ -511,7 +526,7 @@ export const PHOTO_CREDITS = [
   },
   {
     "board": "corsair-k100-rgb",
-    "title": "Corsair K100 RGB Mechanical Gaming Keyboard — CHERRY® MX Speed — Black",
+    "title": "Corsair K100 RGB Mechanical Gaming Keyboard - CHERRY® MX Speed - Black",
     "source": "https://eezepc.com/product/corsair-k100-rgb-mechanical-gaming-keyboard-cherry-mx-speed-black/",
     "host": "eezepc.com"
   },
@@ -559,7 +574,7 @@ export const PHOTO_CREDITS = [
   },
   {
     "board": "switch-clicky",
-    "title": "ASUS ROG Strix XA14 Scope II X Wired Gaming Keyboard, NX Snow V2 (Clicky) Mechanical Switches – Black",
+    "title": "ASUS ROG Strix XA14 Scope II X Wired Gaming Keyboard, NX Snow V2 (Clicky) Mechanical Switches - Black",
     "source": "https://eezepc.com/product/asus-rog-strix-xa14-scope-ii-x-wired-keyboard/",
     "host": "eezepc.com"
   },

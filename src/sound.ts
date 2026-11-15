@@ -13,6 +13,10 @@ export type SoundSet =
   | 'reaper'
   | 'icevein'
   | 'starvector'
+  | 'gateronred'
+  | 'gateronblue'
+  | 'gateronbrown'
+  | 'gateronblack'
   | 'alpaca'
   | 'blackink'
   | 'bluealps'
@@ -34,6 +38,10 @@ const SETS: SoundSet[] = [
   'reaper',
   'icevein',
   'starvector',
+  'gateronred',
+  'gateronblue',
+  'gateronbrown',
+  'gateronblack',
   'alpaca',
   'blackink',
   'bluealps',
@@ -54,6 +62,10 @@ const TAKES = ['r0', 'r1', 'r2', 'r3', 'r4', 'up', 'space', 'space-up', 'enter',
 // Order matters: the loud and unmistakable families are matched before the
 // generic "red means linear" style guesses.
 const MATCH: [RegExp, SoundSet][] = [
+  [/gateron.*red/i, 'gateronred'],
+  [/gateron.*blue/i, 'gateronblue'],
+  [/gateron.*brown/i, 'gateronbrown'],
+  [/gateron.*black/i, 'gateronblack'],
   [/graywood|greywood/i, 'graywood'],
   [/reaper/i, 'reaper'],
   [/ice vein|icevein|ice soul/i, 'icevein'],
@@ -70,16 +82,17 @@ const MATCH: [RegExp, SoundSet][] = [
   [/cream/i, 'cream'],
   [/alpaca/i, 'alpaca'],
   [/turquoise/i, 'turquoise'],
-  [/brown|orange|tactile/i, 'mxbrown'],
-  [/purple|green|blue|clicky/i, 'mxblue'],
+  [/brown|orange|tactile/i, 'gateronbrown'],
+  [/green|blue|clicky/i, 'gateronblue'],
+  [/black/i, 'gateronblack'],
   [/fox/i, 'alpaca'],
-  [/red|silver|linear|lekker|leobog|omnipoint/i, 'graywood'],
+  [/red|silver|linear|lekker|leobog|omnipoint/i, 'gateronred'],
 ];
 
 const BY_KIND: Record<Keyboard['kind'], SoundSet> = {
-  linear: 'redink',
-  tactile: 'mxbrown',
-  clicky: 'mxblue',
+  linear: 'gateronred',
+  tactile: 'gateronbrown',
+  clicky: 'gateronblue',
   topre: 'topre',
   silent: 'topre',
   membrane: 'topre',

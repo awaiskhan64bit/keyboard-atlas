@@ -19,6 +19,9 @@ export default function BoardCard({ kb }: { kb: Keyboard }) {
           <span className="card__blank">{kb.brand}</span>
         )}
         {kb.price ? <span className="card__price">${kb.price}</span> : null}
+        {kb.comingSoon ? (
+          <span className="card__coming-badge badge badge--sm badge--slate">Coming Soon</span>
+        ) : null}
         <span className="card__kind-badge">{kb.kind}</span>
       </a>
 

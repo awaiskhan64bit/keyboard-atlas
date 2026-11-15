@@ -27,6 +27,7 @@ export type Keyboard = {
   accentKeys?: string[];
   caseColor: string;
   note: string;
+  comingSoon?: boolean;
 };
 
 const DARK = { base: '#2c2d31', mod: '#222326', legend: '#cfcbc2' };
@@ -38,12 +39,12 @@ const SLATE = { base: '#5a5f66', mod: '#464b52', legend: '#e6e3dc' };
 const SAND = { base: '#ddd2bd', mod: '#c0b49c', legend: '#3b352b' };
 const ROSE = { base: '#e2d3d0', mod: '#c6b3af', legend: '#3a3130' };
 
-export const KEYBOARDS: Keyboard[] = [
+const RAW_KEYBOARDS: Keyboard[] = [
   {
-    id: 'aula-f75',
+    id: 'aula-f75-pro',
     brand: 'Aula',
-    model: 'F75',
-    year: 2023,
+    model: 'F75 Pro',
+    year: 2024,
     layout: '75',
     switchName: 'LEOBOG Graywood V3',
     kind: 'linear',
@@ -52,32 +53,12 @@ export const KEYBOARDS: Keyboard[] = [
     mounting: 'Gasket',
     keycaps: 'PBT, Cherry profile',
     connect: 'USB-C, Bluetooth 5.0, 2.4 GHz',
-    price: 60,
+    price: 75,
     cap: DARKER,
     accent: '#7fa885',
-    accentKeys: ['Escape'],
-    caseColor: '#15171a',
-    note: 'The board that reset what people expect under a hundred dollars. Five layers of foam, hot swap sockets and a knob.',
-  },
-  {
-    id: 'aula-f75-pro',
-    brand: 'Aula',
-    model: 'F75 Pro',
-    year: 2024,
-    layout: '75',
-    switchName: 'LEOBOG Reaper',
-    kind: 'linear',
-    rgb: 'Per key',
-    caseMaterial: 'ABS plastic',
-    mounting: 'Gasket',
-    keycaps: 'PBT, side printed',
-    connect: 'USB-C, Bluetooth 5.0, 2.4 GHz',
-    price: 79,
-    cap: DARKER,
-    accent: '#c9a063',
     accentKeys: ['Escape', 'Enter'],
     caseColor: '#17191c',
-    note: '81 keys, side printed legends and pre-lubed Reaper switches. Deep and cushioned out of the box, which is the whole pitch.',
+    note: 'The benchmark budget gasket-mounted 75% mechanical board. Five layers of acoustic foam, hot swap sockets, side-printed legends, pre-lubed switches and an aluminium rotary volume knob.',
   },
   {
     id: 'aula-f87-pro',
@@ -921,6 +902,17 @@ export const KEYBOARDS: Keyboard[] = [
   },
 ];
 
+export const KEYBOARDS: Keyboard[] = RAW_KEYBOARDS.map((k) => ({
+  ...k,
+  comingSoon: k.brand !== 'Aula',
+}));
+
 export const BRANDS = [...new Set(KEYBOARDS.map((k) => k.brand))].sort();
 
-export const BY_ID = new Map(KEYBOARDS.map((k) => [k.id, k]));
+export const BY_ID = new Map<string, Keyboard>(KEYBOARDS.map((k) => [k.id, k]));
+
+// Alias aula-f75 to aula-f75-pro so legacy URLs redirect smoothly
+const f75Pro = BY_ID.get('aula-f75-pro');
+if (f75Pro) {
+  BY_ID.set('aula-f75', f75Pro);
+}

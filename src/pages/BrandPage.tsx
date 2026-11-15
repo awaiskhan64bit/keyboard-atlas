@@ -93,6 +93,15 @@ export default function BrandPage({ slug }: Props) {
           </div>
         </div>
         {meta?.blurb ? <p className="brand-hero__blurb">{meta.blurb}</p> : null}
+        {brand !== 'Aula' ? (
+          <div className="coming-soon-banner" style={{ marginTop: '20px' }}>
+            <span className="badge badge--slate">Coming Soon</span>
+            <p>
+              High-fidelity sound tests and switch acoustic captures for {brand} are currently in queue. You can preview the
+              hardware specs below or test the fully playable <a href={links.home + '#aula'}>Aula Collection</a>.
+            </p>
+          </div>
+        ) : null}
       </header>
 
       {brandPhotos.length > 0 ? (

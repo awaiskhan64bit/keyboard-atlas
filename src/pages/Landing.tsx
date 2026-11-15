@@ -32,6 +32,53 @@ type SwitchFeature = {
   photo: string;
 };
 
+const GATERON_SWITCHES: SwitchFeature[] = [
+  {
+    id: 'gateron-red',
+    name: 'Gateron Red',
+    brand: 'Gateron Mechanical',
+    feel: 'Linear',
+    force: '45 gf',
+    travel: '4.0 mm',
+    soundKey: 'gateronred',
+    blurb: 'Smooth, light linear stroke with deep acoustic clack. Extracted from studio Keychron sound tests.',
+    photo: '/photos/switch-gateron-red.jpg',
+  },
+  {
+    id: 'gateron-brown',
+    name: 'Gateron Brown',
+    brand: 'Gateron Mechanical',
+    feel: 'Tactile',
+    force: '55 gf',
+    travel: '4.0 mm',
+    soundKey: 'gateronbrown',
+    blurb: 'Gentle tactile feedback bump mid-travel. Sourced directly from authentic Gateron switch audio.',
+    photo: '/photos/switch-gateron-brown.jpg',
+  },
+  {
+    id: 'gateron-blue',
+    name: 'Gateron Blue',
+    brand: 'Gateron Mechanical',
+    feel: 'Clicky',
+    force: '60 gf',
+    travel: '4.0 mm',
+    soundKey: 'gateronblue',
+    blurb: 'Sharp, distinctive click jacket with crisp high-pitch actuation pop on every keypress.',
+    photo: '/photos/switch-gateron-blue.jpg',
+  },
+  {
+    id: 'gateron-black',
+    name: 'Gateron Black',
+    brand: 'Gateron Mechanical',
+    feel: 'Heavy Linear',
+    force: '60 gf',
+    travel: '4.0 mm',
+    soundKey: 'gateronblack',
+    blurb: 'Substantial 60 gf spring resistance providing a solid, cushioned return thock without bottoming out.',
+    photo: '/photos/switch-gateron-black.jpg',
+  },
+];
+
 const AULA_SWITCHES: SwitchFeature[] = [
   {
     id: 'graywood',
@@ -63,7 +110,7 @@ const AULA_SWITCHES: SwitchFeature[] = [
     force: '40 gf',
     travel: '3.6 mm',
     soundKey: 'icevein',
-    blurb: 'Polycarbonate transparent housing with crisp, crisp high-frequency bottom-out.',
+    blurb: 'Polycarbonate transparent housing with crisp, bright high-frequency bottom-out.',
     photo: '/photos/switch-icevein.jpg',
   },
   {
@@ -82,15 +129,17 @@ const AULA_SWITCHES: SwitchFeature[] = [
 export default function Landing({ onRandom }: { onRandom: () => void }) {
   const [playingSwitch, setPlayingSwitch] = useState<string | null>(null);
 
-  // Focus primarily on Aula keyboards
+  // Active Aula boards
   const aulaBoards = KEYBOARDS.filter((k) => k.brand === 'Aula');
-  const otherFeatured = KEYBOARDS.filter(
+
+  // Preview boards (coming soon)
+  const comingSoonBoards = KEYBOARDS.filter(
     (k) => k.brand !== 'Aula' && ['keychron-q1', 'ducky-one-3-sf', 'wooting-60he', 'nuphy-air75', 'mode-sonnet'].includes(k.id)
   );
 
   const testSwitchAudio = (s: SwitchFeature) => {
     setPlayingSwitch(s.id);
-    const set = soundSetForSwitch(s.name, 'linear');
+    const set = soundSetForSwitch(s.soundKey, 'linear');
     sound.select(set);
     sound.press(2, 'Space');
     setTimeout(() => {
@@ -103,7 +152,7 @@ export default function Landing({ onRandom }: { onRandom: () => void }) {
 
   return (
     <div className="landing-page">
-      {/* Hero Section */}
+      {/* Hero Cinema: 100% Full Opacity Video & Bold Brand Header */}
       <section className="hero-cinema">
         <div className="hero-cinema__frame">
           <video
@@ -116,39 +165,42 @@ export default function Landing({ onRandom }: { onRandom: () => void }) {
             playsInline
             aria-hidden="true"
           />
-          <div className="hero-cinema__overlay" />
+          <div className="hero-cinema__scrim" />
           <div className="hero-cinema__content">
-            <span className="badge badge--red">Laboratory & Mechanical Catalog</span>
+            <div className="hero-cinema__brand-badge">
+              <span className="brand-badge-pill">KEYBOARD ATLAS</span>
+              <span className="badge badge--red">Studio Mechanical Lab</span>
+            </div>
             <h1 className="hero-cinema__title">
               Type on mechanical boards <br />
               before you buy.
             </h1>
             <p className="hero-cinema__lede">
-              Explore authentic factory photography, switch between real colorways, and audition real switch recordings
+              Explore authentic factory photography, switch between real colorways, and audition authentic switch recordings
               extracted from high-fidelity typing tests.
             </p>
             <div className="hero-cinema__actions">
               <a href="#aula" className="btn btn--primary">
-                Explore Aula Collection
+                Explore Aula Collection (7 Boards)
               </a>
-              <a href="#brands" className="btn btn--outline">
-                All Brands with Logos
+              <a href="#switches" className="btn btn--outline">
+                Audition Gateron & Aula Switches
               </a>
               <button type="button" className="btn btn--outline" onClick={onRandom}>
-                Random Board
+                Random Aula Board
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Brands Selector Strip with Vector Logos */}
+      {/* Manufacturers Strip: Aula Active, Others Coming Soon */}
       <section className="section" id="brands">
         <header className="section-head">
           <span className="section-head__eyebrow">Manufacturers</span>
-          <h2 className="section-head__title">Select a brand to view all keyboards & variations</h2>
+          <h2 className="section-head__title">Select a brand to view hardware lineups</h2>
           <p className="section-head__desc">
-            Click any maker logo below to explore their complete hardware lineup with photos of all colourways.
+            Aula is our fully active, sound-tested collection. Other makers are currently queued for studio audio sampling.
           </p>
         </header>
 
@@ -162,7 +214,7 @@ export default function Landing({ onRandom }: { onRandom: () => void }) {
               <a
                 key={brand}
                 href={isAula ? '#aula' : links.brand(brand)}
-                className={`brand-card ${isAula ? 'brand-card--featured' : ''}`}
+                className={`brand-card ${isAula ? 'brand-card--featured' : 'brand-card--coming-soon'}`}
               >
                 <div className="brand-card__logo-wrap">
                   <BrandLogo brand={brand} size={28} className="brand-card__logo" />
@@ -170,31 +222,37 @@ export default function Landing({ onRandom }: { onRandom: () => void }) {
                 <div className="brand-card__info">
                   <div className="brand-card__title-row">
                     <span className="brand-card__name">{brand}</span>
-                    {isAula ? <span className="badge badge--sm badge--red">Target Focus</span> : null}
+                    {isAula ? (
+                      <span className="badge badge--sm badge--red">Active (7 Boards)</span>
+                    ) : (
+                      <span className="badge badge--sm badge--slate">Coming Soon</span>
+                    )}
                   </div>
                   <span className="brand-card__meta">
-                    {meta?.country} / {count} {count === 1 ? 'board' : 'boards'}
+                    {meta?.country} / {count} {count === 1 ? 'model' : 'models'}
                   </span>
                   <p className="brand-card__blurb">{meta?.blurb}</p>
                 </div>
-                <span className="brand-card__arrow">View keyboards &rarr;</span>
+                <span className="brand-card__arrow">
+                  {isAula ? 'Explore collection &rarr;' : 'Preview lineup &rarr;'}
+                </span>
               </a>
             );
           })}
         </div>
       </section>
 
-      {/* Targeted Premier Focus: Aula Keyboards */}
+      {/* Premier Active Focus: The Complete Aula Collection */}
       <section className="section section--highlight" id="aula">
         <header className="section-head">
           <div className="section-head__badge-row">
             <BrandLogo brand="Aula" size={32} />
-            <span className="badge badge--red">Premier Focus</span>
+            <span className="badge badge--red">Active Playable Collection</span>
           </div>
-          <h2 className="section-head__title">The Complete Aula Collection</h2>
+          <h2 className="section-head__title">The Complete Aula Lineup</h2>
           <p className="section-head__desc">
-            Targeting the premier budget gasket-mounted lineup. Featuring real photography of every colourway variation,
-            hot-swap switch options, and authentic YouTube sound tests.
+            Featuring authentic factory photography of every colourway variation, hot-swap switch choices, and real YouTube
+            sound test audio.
           </p>
         </header>
 
@@ -209,9 +267,51 @@ export default function Landing({ onRandom }: { onRandom: () => void }) {
       <section className="section" id="switches">
         <header className="section-head">
           <span className="section-head__eyebrow">Switch Acoustics Laboratory</span>
-          <h2 className="section-head__title">Real Switch Macro Photography & Sounds</h2>
+          <h2 className="section-head__title">Gateron Mechanical Switches</h2>
           <p className="section-head__desc">
-            Sourced from real YouTube audio tests and high-resolution macro photography. Click "Audition Switch" to listen.
+            Official Keychron studio sound test audio and macro camera captures for Gateron Red, Brown, Blue, and Black. Click
+            "Audition Keypress" to listen.
+          </p>
+        </header>
+
+        <div className="switch-lab-grid">
+          {GATERON_SWITCHES.map((sw) => (
+            <article key={sw.id} className="switch-card">
+              <div className="switch-card__media">
+                <img src={sw.photo} alt={sw.name} loading="lazy" decoding="async" />
+                <span className="switch-card__feel-tag">{sw.feel}</span>
+              </div>
+              <div className="switch-card__body">
+                <span className="switch-card__maker">{sw.brand}</span>
+                <h3 className="switch-card__name">{sw.name}</h3>
+                <div className="switch-card__specs">
+                  <div>
+                    <dt>Actuation</dt>
+                    <dd>{sw.force}</dd>
+                  </div>
+                  <div>
+                    <dt>Travel</dt>
+                    <dd>{sw.travel}</dd>
+                  </div>
+                </div>
+                <p className="switch-card__blurb">{sw.blurb}</p>
+                <button
+                  type="button"
+                  className={`btn btn--sm ${playingSwitch === sw.id ? 'btn--primary' : 'btn--outline'}`}
+                  onClick={() => testSwitchAudio(sw)}
+                >
+                  {playingSwitch === sw.id ? 'Playing sound...' : 'Audition Keypress'}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <header className="section-head" style={{ marginTop: '56px' }}>
+          <span className="section-head__eyebrow">Factory Lineup</span>
+          <h2 className="section-head__title">Aula LEOBOG Switches</h2>
+          <p className="section-head__desc">
+            Factory lubricated switches sourced directly from Aula F75 high-fidelity sound tests.
           </p>
         </header>
 
@@ -249,19 +349,23 @@ export default function Landing({ onRandom }: { onRandom: () => void }) {
         </div>
       </section>
 
-      {/* Other Notable Mechanical Keyboards */}
-      <section className="section">
+      {/* Coming Soon: Other Makers in Queue */}
+      <section className="section" id="coming-soon">
         <header className="section-head">
-          <span className="section-head__eyebrow">Custom & Flagship Boards</span>
-          <h2 className="section-head__title">More Makers in the Atlas</h2>
+          <div className="section-head__badge-row">
+            <span className="badge badge--slate">In Studio Queue</span>
+          </div>
+          <h2 className="section-head__title">Coming Soon to Keyboard Atlas</h2>
           <p className="section-head__desc">
-            From Keychron aluminum frames to Wooting analog Hall effect switches.
+            We are actively recording acoustic audio profiles and capturing high-resolution photos for these flagship models.
           </p>
         </header>
 
         <div className="grid grid--3">
-          {otherFeatured.map((kb) => (
-            <BoardCard key={kb.id} kb={kb} />
+          {comingSoonBoards.map((kb) => (
+            <div key={kb.id} className="coming-soon-card-wrap">
+              <BoardCard kb={kb} />
+            </div>
           ))}
         </div>
       </section>
