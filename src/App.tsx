@@ -177,7 +177,7 @@ export default function App() {
 
             <Board kb={kb} layout={layout} mode={mode} pressed={pressed} onPress={hold} onRelease={loose} />
 
-            <p className="hint">{typed ? 'Clicks work too. Switch boards any time.' : 'Press any key to hear this board'}</p>
+            <p className="hint">{typed ? 'Keep typing, or pick another board.' : 'Press any key to hear this board'}</p>
           </section>
 
           <section className="specs">
