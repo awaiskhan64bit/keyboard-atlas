@@ -72,10 +72,15 @@ const BY_KIND: Record<Keyboard['kind'], SoundSet> = {
   membrane: 'topre',
 };
 
+export function soundSetForSwitch(switchName: string, kind?: Keyboard['kind']): SoundSet {
+  for (const [re, set] of MATCH) if (re.test(switchName)) return set;
+  if (kind && BY_KIND[kind]) return BY_KIND[kind];
+  return 'redink';
+}
+
 /** Closest real recording to a board's switch. */
 export function soundSetFor(kb: Keyboard): SoundSet {
-  for (const [re, set] of MATCH) if (re.test(kb.switchName)) return set;
-  return BY_KIND[kb.kind];
+  return soundSetForSwitch(kb.switchName, kb.kind);
 }
 
 const bigKeyOf = (code: string): BigKey | undefined =>
