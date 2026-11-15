@@ -4,7 +4,7 @@ A keyboard tester for boards you have not bought yet.
 
 Pick a board from the catalog, type on it, and the keys move under your fingers. You hear the switch, not a click track. The backlight changes between warm, spectrum, reactive and off. Specs sit under the board so you can see what you are actually looking at.
 
-Live at [keyboard-atlas-awaisvercel.vercel.app](https://keyboard-atlas-awaisvercel.vercel.app).
+Live at [keyboard-atlas.vercel.app](https://keyboard-atlas.vercel.app).
 
 ## What is in it
 
