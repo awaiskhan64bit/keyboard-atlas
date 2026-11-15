@@ -14,9 +14,9 @@ const topre = 'topre' as const;
 const AULA: SwitchOption[] = [
   { name: 'LEOBOG Graywood V3', kind: linear },
   { name: 'LEOBOG Reaper', kind: linear },
-  { name: 'LEOBOG Nimbus V3', kind: linear },
+  { name: 'LEOBOG Ice Vein', kind: linear },
   { name: 'LEOBOG Star Vector', kind: linear },
-  { name: 'LEOBOG Ice Soul', kind: linear },
+  { name: 'LEOBOG Nimbus V3', kind: linear },
 ];
 
 const JELLY: SwitchOption[] = [

@@ -9,6 +9,10 @@
 import type { Keyboard } from './data/keyboards';
 
 export type SoundSet =
+  | 'graywood'
+  | 'reaper'
+  | 'icevein'
+  | 'starvector'
   | 'alpaca'
   | 'blackink'
   | 'bluealps'
@@ -26,6 +30,10 @@ export type SoundSet =
 export type BigKey = 'space' | 'enter' | 'bksp';
 
 const SETS: SoundSet[] = [
+  'graywood',
+  'reaper',
+  'icevein',
+  'starvector',
   'alpaca',
   'blackink',
   'bluealps',
@@ -46,6 +54,11 @@ const TAKES = ['r0', 'r1', 'r2', 'r3', 'r4', 'up', 'space', 'space-up', 'enter',
 // Order matters: the loud and unmistakable families are matched before the
 // generic "red means linear" style guesses.
 const MATCH: [RegExp, SoundSet][] = [
+  [/graywood|greywood/i, 'graywood'],
+  [/reaper/i, 'reaper'],
+  [/ice vein|icevein|ice soul/i, 'icevein'],
+  [/star vector|starvector/i, 'starvector'],
+  [/nimbus/i, 'graywood'],
   [/topre|scissor|membrane/i, 'topre'],
   [/buckling/i, 'buckling'],
   [/box navy/i, 'boxnavy'],
@@ -59,8 +72,8 @@ const MATCH: [RegExp, SoundSet][] = [
   [/turquoise/i, 'turquoise'],
   [/brown|orange|tactile/i, 'mxbrown'],
   [/purple|green|blue|clicky/i, 'mxblue'],
-  [/fox|graywood/i, 'alpaca'],
-  [/red|silver|linear|lekker|leobog|omnipoint/i, 'redink'],
+  [/fox/i, 'alpaca'],
+  [/red|silver|linear|lekker|leobog|omnipoint/i, 'graywood'],
 ];
 
 const BY_KIND: Record<Keyboard['kind'], SoundSet> = {

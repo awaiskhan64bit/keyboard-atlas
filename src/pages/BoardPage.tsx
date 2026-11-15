@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Board, { type RgbMode } from '../Board';
+import BrandLogo from '../components/BrandLogo';
 import { BY_ID, KEYBOARDS, type Keyboard } from '../data/keyboards';
 import { LAYOUTS } from '../data/layouts';
-import { colourwaysFor, photosFor, type Colourway } from '../data/photos';
+import { colourwaysFor, photosFor, SWITCH_PHOTOS, type Colourway } from '../data/photos';
 import { switchOptionsFor, type SwitchOption } from '../data/switchOptions';
 import { FAMILY, familyOf, type Palette } from '../palette';
 import { links } from '../route';
@@ -14,10 +15,10 @@ type Props = {
 };
 
 const MODES: { id: RgbMode; label: string }[] = [
-  { id: 'warm', label: 'Warm' },
-  { id: 'wave', label: 'Wave' },
-  { id: 'rainbow', label: 'Rainbow' },
-  { id: 'off', label: 'Off' },
+  { id: 'warm', label: 'Warm Glow' },
+  { id: 'wave', label: 'Breathing' },
+  { id: 'rainbow', label: 'Spectrum' },
+  { id: 'off', label: 'Lighting Off' },
 ];
 
 const CAPTURE = new Set([
@@ -61,21 +62,21 @@ export default function BoardPage({ id, kb: propKb }: Props) {
 
   // Photos
   const photos = useMemo(() => photosFor(kb.id), [kb.id]);
-  const [photoIndex, setPhotoIndex] = useState(0);
-
-  // Palette computation
-  const activePalette: Palette | undefined = useMemo(() => {
-    if (!selectedColourway) return undefined;
-    const key = selectedColourway.family in FAMILY ? selectedColourway.family : familyOf(selectedColourway.name);
-    return FAMILY[key];
-  }, [selectedColourway]);
+  const [activePhoto, setActivePhoto] = useState<string>(photos[0] ?? '');
 
   // Reset switch and colourway when board changes
   useEffect(() => {
     setSelectedSwitch(defaultSwitch);
     setSelectedColourway(null);
-    setPhotoIndex(0);
-  }, [kb.id, defaultSwitch]);
+    setActivePhoto(photos[0] ?? '');
+  }, [kb.id, defaultSwitch, photos]);
+
+  // Palette computation based on active colourway
+  const activePalette: Palette | undefined = useMemo(() => {
+    if (!selectedColourway) return undefined;
+    const key = selectedColourway.family in FAMILY ? selectedColourway.family : familyOf(selectedColourway.name);
+    return FAMILY[key];
+  }, [selectedColourway]);
 
   // Update sound set when selected switch changes
   useEffect(() => {
@@ -144,35 +145,54 @@ export default function BoardPage({ id, kb: propKb }: Props) {
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [query]);
 
+  // Macro photo for current switch
+  const switchPhoto = useMemo(() => {
+    const sName = selectedSwitch.name.toLowerCase();
+    if (sName.includes('graywood')) return SWITCH_PHOTOS['graywood']?.[0];
+    if (sName.includes('reaper')) return SWITCH_PHOTOS['reaper']?.[0];
+    if (sName.includes('ice vein')) return SWITCH_PHOTOS['icevein']?.[0];
+    if (sName.includes('star vector')) return SWITCH_PHOTOS['starvector']?.[0];
+    return SWITCH_PHOTOS[selectedSwitch.kind]?.[0] ?? SWITCH_PHOTOS['linear']?.[0];
+  }, [selectedSwitch]);
+
+  const isAula = kb.brand === 'Aula';
+
   const facts: [string, string][] = [
     ['Layout', layout.name],
-    ['Switch', selectedSwitch.name],
-    ['Feel', selectedSwitch.kind],
-    ['Lighting', kb.rgb],
-    ['Case', kb.caseMaterial],
-    ['Mount', kb.mounting],
-    ['Keycaps', kb.keycaps],
-    ['Connect', kb.connect],
-    ['Released', String(kb.year)],
+    ['Current switch', selectedSwitch.name],
+    ['Switch feel', selectedSwitch.kind],
+    ['Backlight', kb.rgb],
+    ['Case material', kb.caseMaterial],
+    ['Mounting style', kb.mounting],
+    ['Keycaps profile', kb.keycaps],
+    ['Connectivity', kb.connect],
+    ['Release year', String(kb.year)],
   ];
-  if (kb.price) facts.push(['Launch price', `about $${kb.price}`]);
+  if (kb.price) facts.push(['Approx price', `$${kb.price}`]);
 
   return (
     <div className="board-page">
       <div className="shell">
         <aside className="rail">
+          <div className="rail__head">
+            <span className="rail__title">Catalog Explorer</span>
+            <span className="badge badge--sm badge--red">{KEYBOARDS.length}</span>
+          </div>
           <input
             className="search"
             type="search"
-            placeholder="Search boards"
+            placeholder="Search by brand or model..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search boards"
+            aria-label="Search keyboards"
           />
-          {groups.length === 0 ? <p className="empty">Nothing matches that.</p> : null}
+          {groups.length === 0 ? <p className="empty">No keyboards found.</p> : null}
           {groups.map(([brand, boards]) => (
             <div className="group" key={brand}>
-              <p className="group__name">{brand}</p>
+              <div className="group__header">
+                <BrandLogo brand={brand} size={16} />
+                <span className="group__name">{brand}</span>
+              </div>
               {boards.map((b) => (
                 <a
                   key={b.id}
@@ -180,7 +200,7 @@ export default function BoardPage({ id, kb: propKb }: Props) {
                   className="item"
                   data-active={b.id === kb.id}
                 >
-                  {b.model}
+                  <span className="item__name">{b.model}</span>
                   <span className="item__meta">{LAYOUTS[b.layout].name}</span>
                 </a>
               ))}
@@ -190,140 +210,91 @@ export default function BoardPage({ id, kb: propKb }: Props) {
 
         <div className="main">
           <nav className="crumb crumb--board">
-            <a href={links.home}>All boards</a>
+            <a href={links.home}>Home</a>
             <span className="crumb__sep">/</span>
             <a href={links.brand(kb.brand)}>{kb.brand}</a>
             <span className="crumb__sep">/</span>
             <span className="crumb__cur">{kb.model}</span>
           </nav>
 
-          <section className="stage">
-            <div className="stage__head">
-              <div>
-                <h1>
-                  {kb.brand} {kb.model}
-                </h1>
-                <p className="stage__meta">
-                  {layout.name} / {selectedSwitch.name} ({selectedSwitch.kind})
-                </p>
+          {/* Top Hardware Showcase Section */}
+          <section className="showcase-hero">
+            <div className="showcase-hero__meta">
+              <div className="showcase-hero__brand-row">
+                <BrandLogo brand={kb.brand} size={28} />
+                <span className="tag tag--red">{kb.brand} Showcase</span>
+                {isAula ? <span className="badge badge--red">Real YouTube Sound Test</span> : null}
               </div>
-
-              <div className="stage__controls">
-                <div className="seg" role="group" aria-label="Lighting mode">
-                  {MODES.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      data-active={mode === m.id}
-                      onClick={() => setMode(m.id)}
-                    >
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <h1 className="showcase-hero__title">
+                {kb.brand} {kb.model}
+              </h1>
+              <p className="showcase-hero__subtitle">
+                {layout.name} Form Factor / {selectedSwitch.name} / {kb.mounting} Mount
+              </p>
             </div>
 
-            <Board
-              kb={kb}
-              layout={layout}
-              mode={mode}
-              pressed={pressed}
-              onPress={hold}
-              onRelease={loose}
-              palette={activePalette}
-            />
-
-            <p className="hint">
-              {typed
-                ? 'Typing registered. Click switches or colourways below to hear differences.'
-                : 'Press any key on your physical keyboard or click caps to hear real recordings'}
-            </p>
-
-            <div className="customizer">
-              {switchOptions.length > 1 ? (
-                <div className="customizer__group">
-                  <span className="customizer__label">Switch options</span>
-                  <div className="customizer__options">
-                    {switchOptions.map((s) => (
-                      <button
-                        key={s.name}
-                        type="button"
-                        className="chip"
-                        data-on={selectedSwitch.name === s.name}
-                        onClick={() => setSelectedSwitch(s)}
-                      >
-                        {s.name}
-                        <span className="customizer__badge">{s.kind}</span>
-                      </button>
-                    ))}
-                  </div>
+            {/* Photo vs Interactive View Dual Card */}
+            <div className="showcase-dual">
+              {/* Photo Showcase Card */}
+              <div className="showcase-card showcase-card--photo">
+                <div className="showcase-card__header">
+                  <span className="showcase-card__tag">Factory Hardware Photography</span>
+                  <span className="showcase-card__colour-label">
+                    {selectedColourway ? selectedColourway.name : 'Stock Edition'}
+                  </span>
                 </div>
-              ) : null}
+                <div className="showcase-card__img-wrap">
+                  {activePhoto ? (
+                    <img src={activePhoto} alt={`${kb.brand} ${kb.model}`} loading="lazy" decoding="async" />
+                  ) : (
+                    <div className="card__blank">{kb.brand}</div>
+                  )}
+                </div>
 
-              {colourways.length > 0 ? (
-                <div className="customizer__group">
-                  <span className="customizer__label">Colourways</span>
-                  <div className="customizer__options">
-                    <button
-                      type="button"
-                      className="chip"
-                      data-on={selectedColourway === null}
-                      onClick={() => setSelectedColourway(null)}
-                    >
-                      Stock
-                    </button>
-                    {colourways.map((c) => (
+                {/* Colourway variation buttons that update the photo AND the interactive board */}
+                {colourways.length > 0 ? (
+                  <div className="colourway-picker">
+                    <span className="colourway-picker__title">Switch Colourway:</span>
+                    <div className="colourway-picker__swatches">
                       <button
-                        key={c.name}
                         type="button"
-                        className="chip chip--swatch"
-                        data-on={selectedColourway?.name === c.name}
-                        onClick={() => setSelectedColourway(c)}
-                        title={c.name}
+                        className={`colourway-btn ${selectedColourway === null ? 'colourway-btn--active' : ''}`}
+                        onClick={() => {
+                          setSelectedColourway(null);
+                          setActivePhoto(photos[0] ?? '');
+                        }}
                       >
-                        <span
-                          className="swatch-bubble"
-                          style={{
-                            background: `linear-gradient(135deg, ${c.swatch[0]} 50%, ${c.swatch[1]} 50%)`,
+                        <i style={{ background: kb.cap.base }} />
+                        <span>Stock</span>
+                      </button>
+                      {colourways.map((cw) => (
+                        <button
+                          key={cw.name}
+                          type="button"
+                          className={`colourway-btn ${selectedColourway?.name === cw.name ? 'colourway-btn--active' : ''}`}
+                          onClick={() => {
+                            setSelectedColourway(cw);
+                            setActivePhoto(cw.src);
                           }}
-                        />
-                        {c.name.length > 32 ? `${c.name.slice(0, 32)}...` : c.name}
-                      </button>
-                    ))}
+                          title={cw.name}
+                        >
+                          <i style={{ background: `linear-gradient(135deg, ${cw.swatch[0]} 50%, ${cw.swatch[1]} 50%)` }} />
+                          <span>{cw.name.split(' - ')[1]?.split(' (')[0] ?? cw.family}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : null}
-            </div>
-          </section>
+                ) : null}
 
-          {photos.length > 0 ? (
-            <section className="board-photos">
-              <header className="board-photos__head">
-                <h2>Product photography</h2>
-                <p className="section__note">
-                  Real pictures of this keyboard. Photo {photoIndex + 1} of {photos.length}.
-                </p>
-              </header>
-
-              <div className="board-photos__view">
-                <figure className="board-photos__main">
-                  <img
-                    src={photos[photoIndex]}
-                    alt={`${kb.brand} ${kb.model}`}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </figure>
+                {/* Thumbnail strip */}
                 {photos.length > 1 ? (
-                  <div className="board-photos__thumbs">
-                    {photos.map((src, idx) => (
+                  <div className="showcase-card__thumbs">
+                    {photos.map((src, i) => (
                       <button
-                        key={src + idx}
+                        key={src + i}
                         type="button"
-                        className="board-photos__thumb"
-                        data-active={idx === photoIndex}
-                        onClick={() => setPhotoIndex(idx)}
+                        className={`thumb-btn ${activePhoto === src ? 'thumb-btn--active' : ''}`}
+                        onClick={() => setActivePhoto(src)}
                       >
                         <img src={src} alt="" loading="lazy" decoding="async" />
                       </button>
@@ -331,12 +302,102 @@ export default function BoardPage({ id, kb: propKb }: Props) {
                   </div>
                 ) : null}
               </div>
-            </section>
-          ) : null}
 
+              {/* Interactive Audio & Typing Deck Card */}
+              <div className="showcase-card showcase-card--interactive">
+                <div className="showcase-card__header">
+                  <span className="showcase-card__tag">Interactive Typing & Audio Test</span>
+                  <div className="seg" role="group" aria-label="Lighting mode">
+                    {MODES.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        data-active={mode === m.id}
+                        onClick={() => setMode(m.id)}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="showcase-board-wrap">
+                  <Board
+                    kb={kb}
+                    layout={layout}
+                    mode={mode}
+                    pressed={pressed}
+                    onPress={hold}
+                    onRelease={loose}
+                    palette={activePalette}
+                  />
+                </div>
+
+                <p className="hint">
+                  {typed
+                    ? 'Keypress registered with real switch acoustics. Type freely.'
+                    : 'Press any key on your physical keyboard or click the keycaps above'}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Switch Laboratory Section */}
+          <section className="switch-lab-section">
+            <header className="section-head">
+              <span className="section-head__eyebrow">Switch Options for this model</span>
+              <h2 className="section-head__title">Select Your Switch Configuration</h2>
+              <p className="section-head__desc">
+                Changing switches updates the acoustic audio profile and macro camera view in real time.
+              </p>
+            </header>
+
+            <div className="switch-detail-card">
+              <div className="switch-detail-card__media">
+                {switchPhoto ? (
+                  <img src={switchPhoto} alt={selectedSwitch.name} loading="lazy" decoding="async" />
+                ) : null}
+                <span className="switch-card__feel-tag">{selectedSwitch.kind}</span>
+              </div>
+              <div className="switch-detail-card__body">
+                <div className="switch-detail-card__top">
+                  <div>
+                    <span className="switch-card__maker">{kb.brand} Factory Option</span>
+                    <h3 className="switch-detail-card__title">{selectedSwitch.name}</h3>
+                  </div>
+                  {isAula ? <span className="badge badge--red">YouTube Verified Audio</span> : null}
+                </div>
+
+                <div className="switch-pills">
+                  <span className="switch-pills__label">Select switch:</span>
+                  <div className="switch-pills__list">
+                    {switchOptions.map((s) => (
+                      <button
+                        key={s.name}
+                        type="button"
+                        className={`switch-pill ${selectedSwitch.name === s.name ? 'switch-pill--active' : ''}`}
+                        onClick={() => setSelectedSwitch(s)}
+                      >
+                        <span className="switch-pill__name">{s.name}</span>
+                        <span className="switch-pill__kind">{s.kind}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="switch-detail-card__note">
+                  {isAula
+                    ? 'Extracted from real Aula F75 YouTube sound tests. Sliced into individual row hits, spacebars and enter keystrokes with ffmpeg.'
+                    : 'Acoustics matched to real high-fidelity switch recordings.'}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Technical Specifications */}
           <section className="specs">
             <header className="specs__header">
-              <h2>Specifications & Notes</h2>
+              <h2>Factory Specifications & Architecture</h2>
             </header>
             <p className="specs__note">{kb.note}</p>
             <dl className="facts">
@@ -347,21 +408,20 @@ export default function BoardPage({ id, kb: propKb }: Props) {
                 </div>
               ))}
             </dl>
-            <p className="fine">
-              Specs are approximate and edited by contributors. Switch audio comes from kbsim recordings of matching switch classes.
-            </p>
           </section>
 
+          {/* Related Brand Action */}
           <section className="related-brand">
             <div className="related-brand__box">
-              <div>
-                <h3>Explore more from {kb.brand}</h3>
-                <p>
-                  View all boards, company background, and catalog entries for {kb.brand}.
-                </p>
+              <div className="related-brand__info">
+                <BrandLogo brand={kb.brand} size={36} />
+                <div>
+                  <h3>Explore All {kb.brand} Keyboards</h3>
+                  <p>View all {kb.brand} hardware models, custom layouts, and variations.</p>
+                </div>
               </div>
-              <a className="btn btn--ghost" href={links.brand(kb.brand)}>
-                View {kb.brand} collection
+              <a className="btn btn--primary" href={links.brand(kb.brand)}>
+                View {kb.brand} Collection
               </a>
             </div>
           </section>

@@ -376,9 +376,21 @@ export const BOARD_COLOURWAYS: Record<string, Colourway[]> = {
 };
 
 export const SWITCH_PHOTOS: Record<string, string[]> = {
+  "graywood": [
+    "/photos/switch-graywood.jpg"
+  ],
+  "reaper": [
+    "/photos/switch-reaper.jpg"
+  ],
+  "icevein": [
+    "/photos/switch-icevein.jpg"
+  ],
+  "starvector": [
+    "/photos/switch-starvector.jpg"
+  ],
   "linear": [
-    "/photos/switch-linear-1.jpg",
-    "/photos/switch-linear-2.jpg"
+    "/photos/switch-graywood.jpg",
+    "/photos/switch-linear-1.jpg"
   ],
   "clicky": [
     "/photos/switch-clicky-1.jpg",
